@@ -1,5 +1,7 @@
 'use strict';
 
+Object.defineProperty(exports, '__esModule', { value: true });
+
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
 var react = require('react');
@@ -306,6 +308,10 @@ function (_Component) {
 
 var errorHandler = null;
 
+var setWithObservableErrorHandler = function setWithObservableErrorHandler(handler) {
+  errorHandler = handler;
+};
+
 var withObservablesSynchronized = function withObservablesSynchronized(triggerProps, getObservables) {
   var getNewProps = makeGetNewProps(getObservables);
   return function (BaseComponent) {
@@ -325,4 +331,5 @@ var withObservablesSynchronized = function withObservablesSynchronized(triggerPr
   };
 };
 
-module.exports = withObservablesSynchronized;
+exports.default = withObservablesSynchronized;
+exports.setWithObservableErrorHandler = setWithObservableErrorHandler;

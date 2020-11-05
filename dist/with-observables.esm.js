@@ -302,6 +302,10 @@ function (_Component) {
 
 var errorHandler = null;
 
+var setWithObservableErrorHandler = function setWithObservableErrorHandler(handler) {
+  errorHandler = handler;
+};
+
 var withObservablesSynchronized = function withObservablesSynchronized(triggerProps, getObservables) {
   var getNewProps = makeGetNewProps(getObservables);
   return function (BaseComponent) {
@@ -322,3 +326,4 @@ var withObservablesSynchronized = function withObservablesSynchronized(triggerPr
 };
 
 export default withObservablesSynchronized;
+export { setWithObservableErrorHandler };

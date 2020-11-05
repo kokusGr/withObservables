@@ -271,3 +271,6 @@ const withObservablesSynchronized = <PropsInput: {}, ObservableProps: {}>(
 }
 
 export default withObservablesSynchronized
+export {
+  setWithObservableErrorHandler
+}
