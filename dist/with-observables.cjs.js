@@ -150,7 +150,7 @@ var WithObservablesComponent =
 function (_Component) {
   _inheritsLoose(WithObservablesComponent, _Component);
 
-  function WithObservablesComponent(props, BaseComponent, getNewProps, triggerProps) {
+  function WithObservablesComponent(props, BaseComponent, getNewProps, triggerProps, errorHandler) {
     var _this;
 
     _this = _Component.call(this, props) || this;
@@ -165,7 +165,8 @@ function (_Component) {
       isFetching: true,
       values: {},
       triggeredFromProps: getTriggeringProps(props, triggerProps)
-    }; // The recommended React practice is to subscribe to async sources on `didMount`
+    };
+    _this.errorHandler = errorHandler; // The recommended React practice is to subscribe to async sources on `didMount`
     // Unfortunately, that's slow, because we have an unnecessary empty render even if we
     // can get first values before render.
     //
@@ -229,7 +230,11 @@ function (_Component) {
     }, function (error) {
       // we need to explicitly log errors from the new observables, or they will get lost
       // TODO: It can be difficult to trace back the component in which this error originates. We should maybe propagate this as an error of the component? Or at least show in the error a reference to the component, or the original `getProps` function?
-      console.error("Error in Rx composition in withObservables()", error);
+      if (_this2.errorHandler) {
+        errorHandler(error);
+      } else {
+        console.error("Error in Rx composition in withObservables()", error);
+      }
     });
   } // DO NOT rename (we want on call stack as debugging help)
   ;
@@ -299,6 +304,8 @@ function (_Component) {
 //   }))
 
 
+var errorHandler = null;
+
 var withObservablesSynchronized = function withObservablesSynchronized(triggerProps, getObservables) {
   var getNewProps = makeGetNewProps(getObservables);
   return function (BaseComponent) {
@@ -308,7 +315,7 @@ var withObservablesSynchronized = function withObservablesSynchronized(triggerPr
       _inheritsLoose(ConcreteWithObservablesComponent, _WithObservablesCompo);
 
       function ConcreteWithObservablesComponent(props) {
-        return _WithObservablesCompo.call(this, props, BaseComponent, getNewProps, triggerProps) || this;
+        return _WithObservablesCompo.call(this, props, BaseComponent, getNewProps, triggerProps, errorHandler) || this;
       }
 
       return ConcreteWithObservablesComponent;

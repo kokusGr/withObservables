@@ -93,6 +93,7 @@ class WithObservablesComponent<AddedValues: any, PropsInput: {}> extends Compone
     BaseComponent: React$ComponentType<Object>,
     getNewProps: PropsInput => Observable<Object>,
     triggerProps: TriggerProps<PropsInput>,
+    errorHandler,
   ): void {
     super(props)
     this.BaseComponent = BaseComponent
@@ -103,6 +104,7 @@ class WithObservablesComponent<AddedValues: any, PropsInput: {}> extends Compone
       values: {},
       triggeredFromProps: getTriggeringProps(props, triggerProps),
     }
+    this.errorHandler = errorHandler
 
     // The recommended React practice is to subscribe to async sources on `didMount`
     // Unfortunately, that's slow, because we have an unnecessary empty render even if we
@@ -166,7 +168,11 @@ class WithObservablesComponent<AddedValues: any, PropsInput: {}> extends Compone
       error => {
         // we need to explicitly log errors from the new observables, or they will get lost
         // TODO: It can be difficult to trace back the component in which this error originates. We should maybe propagate this as an error of the component? Or at least show in the error a reference to the component, or the original `getProps` function?
-        console.error(`Error in Rx composition in withObservables()`, error)
+        if (this.errorHandler) {
+          errorHandler(error)
+        } else {
+          console.error(`Error in Rx composition in withObservables()`, error)
+        }
       },
     )
   }
@@ -236,6 +242,12 @@ class WithObservablesComponent<AddedValues: any, PropsInput: {}> extends Compone
 //     comments: task.comments.observe()
 //   }))
 
+let errorHandler = null
+
+const setWithObservableErrorHandler = handler => {
+  errorHandler = handler
+}
+
 const withObservablesSynchronized = <PropsInput: {}, ObservableProps: {}>(
   triggerProps: TriggerProps<PropsInput>,
   getObservables: GetObservables<PropsInput, ObservableProps>,
@@ -250,7 +262,7 @@ const withObservablesSynchronized = <PropsInput: {}, ObservableProps: {}>(
       PropsInput,
     > {
       constructor(props): void {
-        super(props, BaseComponent, getNewProps, triggerProps)
+        super(props, BaseComponent, getNewProps, triggerProps, errorHandler)
       }
     }
 
